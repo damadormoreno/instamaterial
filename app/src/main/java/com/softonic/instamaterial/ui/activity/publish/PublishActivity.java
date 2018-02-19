@@ -135,8 +135,8 @@ public class PublishActivity extends BaseActivity implements PublishPresenter.Vi
     }
   }
 
-  private void bringMainActivityToTop(String photoId) {
-    startActivity(MainActivity.getCallingIntent(this, photoId));
+  private void bringMainActivityToTop() {
+    startActivity(MainActivity.getCallingIntent(this));
   }
 
   @Override
@@ -165,10 +165,10 @@ public class PublishActivity extends BaseActivity implements PublishPresenter.Vi
         .show();
   }
 
-  @Override public void onPhotoPublished(String photoId) {
+  @Override public void onPhotoPublished() {
     uploading = false;
     flUploading.setVisibility(View.GONE);
-    bringMainActivityToTop(photoId);
+    bringMainActivityToTop();
   }
 
   @Override public void onBackPressed() {

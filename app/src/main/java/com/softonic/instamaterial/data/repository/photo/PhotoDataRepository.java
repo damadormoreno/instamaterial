@@ -28,4 +28,14 @@ public class PhotoDataRepository implements PhotoRepository {
   @Override public ObservableTask<String> uploadPhoto(String photoUri) {
     return photoDataSource.uploadPhoto(photoUri);
   }
+
+  @Override
+  public ObservableTask<Photo> addPhotoNotifier() {
+    return photoDataSource.addPhotoNotifier();
+  }
+
+  @Override
+  public ObservableTask<Boolean> removePhotoNotifier() {
+    return photoDataSource.removePhotoNotifier();
+  }
 }

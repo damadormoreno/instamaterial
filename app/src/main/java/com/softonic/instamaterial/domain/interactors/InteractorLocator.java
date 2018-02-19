@@ -22,4 +22,14 @@ public interface InteractorLocator {
   UploadPhoto uploadPhoto();
 
   PublishComment publishComment();
+
+  AddPhotoNotifier addPhotoNotifier();
+
+  RemovePhotoNotifier removePhotoNotifier();
+
+  AddLikeNotifier addLikeNotifier();
+
+  RemoveLikeNotifier removeLikeNotifier();
+
+  AddCommentNotifier addCommentNotifier();
 }

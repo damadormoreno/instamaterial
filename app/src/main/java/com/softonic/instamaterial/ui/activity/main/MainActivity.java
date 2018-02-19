@@ -21,6 +21,7 @@ import com.softonic.instamaterial.R;
 import com.softonic.instamaterial.ui.activity.BaseActivity;
 import com.softonic.instamaterial.ui.activity.TakePhotoActivity;
 import com.softonic.instamaterial.ui.activity.comments.CommentsActivity;
+import com.softonic.instamaterial.ui.activity.login.LoginActivity;
 import com.softonic.instamaterial.ui.adapter.FeedAdapter;
 import com.softonic.instamaterial.ui.adapter.FeedItemAnimator;
 import com.softonic.instamaterial.ui.locator.AppServiceLocator;
@@ -36,6 +37,8 @@ public class MainActivity extends BaseActivity
 
   private static final int ANIM_DURATION_TOOLBAR = 300;
   private static final int ANIM_DURATION_FAB = 400;
+
+  private static final int RC_LOGIN = 8001;
 
   @BindView(R.id.clContent)
   CoordinatorLayout clContent;
@@ -54,11 +57,11 @@ public class MainActivity extends BaseActivity
 
   private MainPresenter mainPresenter;
 
-  public static Intent getCallingIntent(Context context, String photoId) {
+  public static Intent getCallingIntent(Context context) {
     Intent intent = new Intent(context, MainActivity.class);
     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     intent.setAction(MainActivity.ACTION_SHOW_LOADING_ITEM);
-    intent.putExtra(EXTRA_PHOTO_ID, photoId);
+    /*intent.putExtra(EXTRA_PHOTO_ID, photoId);*/
     return intent;
   }
 
@@ -74,6 +77,12 @@ public class MainActivity extends BaseActivity
       pendingIntroAnimation = true;
       mainPresenter.requestLoggedUser();
     }
+  }
+
+  @Override
+  protected void onDestroy() {
+    mainPresenter.requestRemovePhotoNotifier();
+    super.onDestroy();
   }
 
   private void initPresenter() {
@@ -113,6 +122,7 @@ public class MainActivity extends BaseActivity
       public void run() {
         rvFeed.smoothScrollToPosition(0);
         feedAdapter.addLoadingView(feedItem);
+        mainPresenter.requestAddLikeNotifier(feedItem.getPhotoId());
       }
     }, 500);
   }
@@ -124,6 +134,20 @@ public class MainActivity extends BaseActivity
   }
 
   @Override public void loginUser() {
+    Intent intent = new Intent(this, LoginActivity.class);
+    startActivityForResult(intent, RC_LOGIN);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == RC_LOGIN){
+      if (resultCode == RESULT_OK){
+        mainPresenter.requestLoggedUser();
+      }else {
+        mainPresenter.onNotLoggedUser();
+      }
+    }
   }
 
   @Override public void showErrorWhileRequestingFeed() {
@@ -170,13 +194,52 @@ public class MainActivity extends BaseActivity
   }
 
   @Override
+  public void signedOut() {
+    loginUser();
+  }
+
+  @Override
+  public void showErrorWhileSigningOut() {
+    Snackbar
+            .make(findViewById(R.id.root), R.string.error_while_signing_out,
+                    Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.action_retry, new View.OnClickListener() {
+              @Override public void onClick(View v) {
+                mainPresenter.requestSignOut();
+              }
+            })
+            .show();
+  }
+
+  @Override
+  public void addLikeNotifier() {
+    List<FeedItem> feedItems = feedAdapter.getItems();
+    for (FeedItem feedItem : feedItems) {
+      mainPresenter.requestAddLikeNotifier(feedItem.getPhotoId());
+    }
+  }
+
+  @Override
+  public void removeLikeNotifiers() {
+    List<FeedItem> feedItems = feedAdapter.getItems();
+    for (FeedItem feedItem : feedItems) {
+      mainPresenter.requestRemoveLikeNotifier(feedItem.getPhotoId());
+    }
+  }
+
+  @Override
+  public void updateLikePhotoLikeCounter(String photoId, String userId, int likeTagFlags) {
+    feedAdapter.updatePhotoLikeCounter(photoId, userId,likeTagFlags);
+  }
+
+/*  @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     if (ACTION_SHOW_LOADING_ITEM.equals(intent.getAction())) {
       String photoId = intent.getStringExtra(EXTRA_PHOTO_ID);
       mainPresenter.requestFeedItem(photoId);
     }
-  }
+  }*/
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {

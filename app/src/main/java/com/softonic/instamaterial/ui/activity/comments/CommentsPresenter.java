@@ -1,6 +1,7 @@
 package com.softonic.instamaterial.ui.activity.comments;
 
 import com.softonic.instamaterial.domain.common.UseCaseCallback;
+import com.softonic.instamaterial.domain.interactors.AddCommentNotifier;
 import com.softonic.instamaterial.domain.interactors.GetAuthenticatedUserUid;
 import com.softonic.instamaterial.domain.interactors.PublishComment;
 import com.softonic.instamaterial.domain.model.Comment;
@@ -16,15 +17,17 @@ public class CommentsPresenter extends Presenter<CommentsPresenter.View> {
   private final GetAuthenticatedUserUid getAuthenticatedUserUid;
   private final PublishComment publishComment;
   private final GetCommentItem getCommentItem;
+  private final AddCommentNotifier addCommentNotifier;
 
   private String currentUserUid;
 
   public CommentsPresenter(GetCommentItems getCommentItems, GetAuthenticatedUserUid getAuthenticatedUserUid,
-      PublishComment publishComment, GetCommentItem getCommentItem) {
+                           PublishComment publishComment, GetCommentItem getCommentItem, AddCommentNotifier addCommentNotifier) {
     this.getCommentItems = getCommentItems;
     this.getAuthenticatedUserUid = getAuthenticatedUserUid;
     this.publishComment = publishComment;
     this.getCommentItem = getCommentItem;
+    this.addCommentNotifier = addCommentNotifier;
   }
 
   @Override public void attach(View view) {
@@ -49,6 +52,10 @@ public class CommentsPresenter extends Presenter<CommentsPresenter.View> {
 
   public void requestCommentItem(Comment comment) {
     getCommentItem.execute(comment, new GetCommentItemCallback());
+  }
+
+  public void  requestAddCommentNotifier(String photoId){
+    addCommentNotifier.execute(photoId, new AddCommentNotifierCallBack());
   }
 
   private class GetCommentItemsCallback implements UseCaseCallback<List<CommentItem>> {
@@ -95,6 +102,19 @@ public class CommentsPresenter extends Presenter<CommentsPresenter.View> {
 
     @Override public void onError(Exception exception) {
       view.showErrorWhileUploading();
+    }
+  }
+
+  private class AddCommentNotifierCallBack implements UseCaseCallback<Comment> {
+
+    @Override
+    public void onSuccess(Comment comment) {
+      requestCommentItem(comment);
+    }
+
+    @Override
+    public void onError(Exception exception) {
+      view.showErrorWhileRequestingComments();
     }
   }
 

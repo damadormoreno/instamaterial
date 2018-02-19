@@ -46,7 +46,7 @@ public class PublishPresenter extends Presenter<PublishPresenter.View> {
   private class PublishPhotoCallback implements UseCaseCallback<Photo> {
 
     @Override public void onSuccess(Photo result) {
-      view.onPhotoPublished(result.getId());
+      view.onPhotoPublished();
     }
 
     @Override public void onError(Exception exception) {
@@ -59,6 +59,6 @@ public class PublishPresenter extends Presenter<PublishPresenter.View> {
 
     void showErrorWhileUploading();
 
-    void onPhotoPublished(String photoId);
+    void onPhotoPublished();
   }
 }

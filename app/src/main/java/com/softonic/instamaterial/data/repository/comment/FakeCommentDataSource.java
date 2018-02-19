@@ -95,4 +95,14 @@ public class FakeCommentDataSource implements CommentDataSource {
       }
     };
   }
+
+  @Override
+  public ObservableTask<Comment> addCommentNotifier(String photoId) {
+    return null;
+  }
+
+  @Override
+  public ObservableTask<Boolean> removeCommentNotifier(String photoId) {
+    return null;
+  }
 }

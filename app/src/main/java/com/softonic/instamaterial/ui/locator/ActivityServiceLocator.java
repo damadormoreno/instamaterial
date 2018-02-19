@@ -1,8 +1,12 @@
 package com.softonic.instamaterial.ui.locator;
 
 import android.support.v4.app.FragmentActivity;
+
 import com.softonic.instamaterial.data.locator.DataServiceLocator;
 import com.softonic.instamaterial.domain.executor.UseCaseExecutor;
+import com.softonic.instamaterial.domain.interactors.AddCommentNotifier;
+import com.softonic.instamaterial.domain.interactors.AddLikeNotifier;
+import com.softonic.instamaterial.domain.interactors.AddPhotoNotifier;
 import com.softonic.instamaterial.domain.interactors.GetAuthenticatedUserUid;
 import com.softonic.instamaterial.domain.interactors.GetPhoto;
 import com.softonic.instamaterial.domain.interactors.GetPhotoComments;
@@ -13,11 +17,18 @@ import com.softonic.instamaterial.domain.interactors.InteractorLocator;
 import com.softonic.instamaterial.domain.interactors.LikePhoto;
 import com.softonic.instamaterial.domain.interactors.PublishComment;
 import com.softonic.instamaterial.domain.interactors.PublishPhoto;
+import com.softonic.instamaterial.domain.interactors.RemoveLikeNotifier;
+import com.softonic.instamaterial.domain.interactors.RemovePhotoNotifier;
 import com.softonic.instamaterial.domain.interactors.UpdateUser;
 import com.softonic.instamaterial.domain.interactors.UploadPhoto;
+import com.softonic.instamaterial.domain.repository.CommentRepository;
+import com.softonic.instamaterial.domain.repository.LikeRepository;
+import com.softonic.instamaterial.domain.repository.PhotoRepository;
 import com.softonic.instamaterial.domain.repository.RepositoryLocator;
 import com.softonic.instamaterial.ui.activity.comments.CommentsPresenter;
 import com.softonic.instamaterial.ui.activity.comments.CommentsPresenterLocator;
+import com.softonic.instamaterial.ui.activity.login.LoginPresenter;
+import com.softonic.instamaterial.ui.activity.login.LoginPresenterLocator;
 import com.softonic.instamaterial.ui.activity.main.MainPresenter;
 import com.softonic.instamaterial.ui.activity.main.MainPresenterLocator;
 import com.softonic.instamaterial.ui.activity.publish.PublishPresenter;
@@ -27,12 +38,15 @@ import com.softonic.instamaterial.ui.orchestrator.GetCommentItems;
 import com.softonic.instamaterial.ui.orchestrator.GetFeedItem;
 import com.softonic.instamaterial.ui.orchestrator.GetFeedItems;
 import com.softonic.instamaterial.ui.orchestrator.OrchestratorLocator;
+import com.softonic.instamaterial.ui.orchestrator.SignIn;
+import com.softonic.instamaterial.ui.orchestrator.SignOut;
 
 public class ActivityServiceLocator
     implements MainPresenterLocator, PublishPresenterLocator, CommentsPresenterLocator,
-    InteractorLocator, OrchestratorLocator {
+    InteractorLocator, OrchestratorLocator, LoginPresenterLocator {
 
   private MainPresenter mainPresenter;
+  private LoginPresenter loginPresenter;
   private PublishPresenter publishPresenter;
   private CommentsPresenter commentsPresenter;
   private GetPhoto getPhoto;
@@ -50,11 +64,19 @@ public class ActivityServiceLocator
   private GetFeedItems getFeedItems;
   private GetCommentItems getCommentItems;
   private GetCommentItem getCommentItem;
+  private SignIn signIn;
+  private SignOut signOut;
+  private AddPhotoNotifier addPhotoNotifier;
+  private RemovePhotoNotifier removePhotoNotifier;
+  private AddLikeNotifier addLikeNotifier;
+  private RemoveLikeNotifier removeLikeNotifier;
+  private AddCommentNotifier addCommentNotifier;
 
   @Override public MainPresenter mainPresenter(FragmentActivity activity) {
     if (mainPresenter == null) {
       mainPresenter =
-          new MainPresenter(getLoggedUser(), getFeedItem(), getFeedItems(), likePhoto());
+          new MainPresenter(getLoggedUser(), getFeedItem(), getFeedItems(), likePhoto(), signOut(activity),
+                  addPhotoNotifier(), removePhotoNotifier(), addLikeNotifier(), removeLikeNotifier());
     }
     return mainPresenter;
   }
@@ -70,7 +92,7 @@ public class ActivityServiceLocator
     if (commentsPresenter == null) {
       commentsPresenter =
           new CommentsPresenter(getCommentItems(), getLoggedUser(), publishComment(),
-              getCommentItem());
+              getCommentItem(), addCommentNotifier());
     }
     return commentsPresenter;
   }
@@ -166,9 +188,59 @@ public class ActivityServiceLocator
     return publishComment;
   }
 
+  @Override
+  public AddPhotoNotifier addPhotoNotifier() {
+    if (addPhotoNotifier == null){
+      PhotoRepository photoRepository = DataServiceLocator.getInstance().photoRepository();
+      addPhotoNotifier = new AddPhotoNotifier(useCaseExecutor(), photoRepository);
+    }
+
+    return addPhotoNotifier;
+  }
+
+  @Override
+  public RemovePhotoNotifier removePhotoNotifier() {
+    if (removePhotoNotifier == null){
+      PhotoRepository photoRepository = DataServiceLocator.getInstance().photoRepository();
+      removePhotoNotifier = new RemovePhotoNotifier(useCaseExecutor(), photoRepository);
+    }
+
+    return removePhotoNotifier;
+  }
+
+  @Override
+  public AddLikeNotifier addLikeNotifier() {
+    if (addLikeNotifier == null){
+      LikeRepository likeRepository = DataServiceLocator.getInstance().likeRepository();
+      addLikeNotifier = new AddLikeNotifier(useCaseExecutor(), likeRepository);
+    }
+
+    return addLikeNotifier;
+  }
+
+  @Override
+  public RemoveLikeNotifier removeLikeNotifier() {
+    if (removeLikeNotifier == null){
+      LikeRepository likeRepository = DataServiceLocator.getInstance().likeRepository();
+      removeLikeNotifier = new RemoveLikeNotifier(useCaseExecutor(), likeRepository);
+    }
+
+    return removeLikeNotifier;
+  }
+
+  @Override
+  public AddCommentNotifier addCommentNotifier() {
+    if (addCommentNotifier == null){
+      CommentRepository commentRepository = DataServiceLocator.getInstance().commentRepository();
+      addCommentNotifier = new AddCommentNotifier(useCaseExecutor(), commentRepository);
+    }
+
+    return addCommentNotifier;
+  }
+
   @Override public GetFeedItem getFeedItem() {
     if (getFeedItem == null) {
-      getFeedItem = new GetFeedItem(useCaseExecutor(), getPhoto(), getUser(), getPhotoLikes());
+      getFeedItem = new GetFeedItem(useCaseExecutor(), getUser(), getPhotoLikes());
     }
     return getFeedItem;
   }
@@ -195,7 +267,31 @@ public class ActivityServiceLocator
     return getCommentItem;
   }
 
+  @Override
+  public SignIn signIn(FragmentActivity activity) {
+    if (signIn == null){
+      signIn = new SignIn(useCaseExecutor(), updateUser(), activity);
+    }
+    return signIn;
+  }
+
+  @Override
+  public SignOut signOut(FragmentActivity activity) {
+    if (signOut == null){
+      signOut = new SignOut(useCaseExecutor(), activity);
+    }
+    return signOut;
+  }
+
   private UseCaseExecutor useCaseExecutor() {
     return AppServiceLocator.getInstance().useCaseExecutor();
+  }
+
+  @Override
+  public LoginPresenter loginPresenter(FragmentActivity activity) {
+    if (loginPresenter == null){
+      loginPresenter = new LoginPresenter(signIn(activity));
+    }
+    return loginPresenter;
   }
 }

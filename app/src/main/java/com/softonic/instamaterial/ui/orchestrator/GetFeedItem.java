@@ -15,25 +15,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class GetFeedItem extends UseCase<String, FeedItem> {
-  private final GetPhoto getPhoto;
+public class GetFeedItem extends UseCase<Photo, FeedItem> {
+
   private final GetUser getUser;
   private final GetPhotoLikes getPhotoLikes;
 
-  public GetFeedItem(UseCaseExecutor useCaseExecutor,
-      GetPhoto getPhoto, GetUser getUser, GetPhotoLikes getPhotoLikes) {
+  public GetFeedItem(UseCaseExecutor useCaseExecutor, GetUser getUser, GetPhotoLikes getPhotoLikes) {
     super(useCaseExecutor);
-    this.getPhoto = getPhoto;
     this.getUser = getUser;
     this.getPhotoLikes = getPhotoLikes;
   }
 
-  @Override public ObservableTask<FeedItem> createObservableTask(final String photoId) {
+  @Override public ObservableTask<FeedItem> createObservableTask(final Photo photo) {
     return new ObservableTask<FeedItem>() {
       @Override public void run(Subscriber<FeedItem> result) {
-        Photo photo = getPhoto.createObservableTask(photoId).getResult();
         User user = getUser.createObservableTask(photo.getUserId()).getResult();
-        if (photoId != null && user != null) {
+        if (user != null) {
           List<String> userLikes = getPhotoLikes(photo.getId());
           result.onSuccess(FeedItem.Builder()
               .photoId(photo.getId())

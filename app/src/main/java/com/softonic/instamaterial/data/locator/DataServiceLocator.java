@@ -3,16 +3,21 @@ package com.softonic.instamaterial.data.locator;
 import com.softonic.instamaterial.data.repository.comment.CommentDataRepository;
 import com.softonic.instamaterial.data.repository.comment.CommentDataSource;
 import com.softonic.instamaterial.data.repository.comment.FakeCommentDataSource;
+import com.softonic.instamaterial.data.repository.comment.FirebaseCommentDataSource;
 import com.softonic.instamaterial.data.repository.like.FakeLikeDataSource;
+import com.softonic.instamaterial.data.repository.like.FirebaseLikeDataSource;
 import com.softonic.instamaterial.data.repository.like.LikeDataRepository;
 import com.softonic.instamaterial.data.repository.like.LikeDataSource;
 import com.softonic.instamaterial.data.repository.loggedUser.AuthenticatedUserDataRepository;
 import com.softonic.instamaterial.data.repository.loggedUser.FakeLoggedUserDataSource;
+import com.softonic.instamaterial.data.repository.loggedUser.FirebaseAuthenticatedUserDataSource;
 import com.softonic.instamaterial.data.repository.loggedUser.LoggedUserDataSource;
 import com.softonic.instamaterial.data.repository.photo.FakePhotoDataSource;
+import com.softonic.instamaterial.data.repository.photo.FirebasePhotoDataSource;
 import com.softonic.instamaterial.data.repository.photo.PhotoDataRepository;
 import com.softonic.instamaterial.data.repository.photo.PhotoDataSource;
 import com.softonic.instamaterial.data.repository.user.FakeUserDataSource;
+import com.softonic.instamaterial.data.repository.user.FirebaseUserDataSource;
 import com.softonic.instamaterial.data.repository.user.UserDataRepository;
 import com.softonic.instamaterial.data.repository.user.UserDataSource;
 import com.softonic.instamaterial.domain.repository.AuthenticatedUserRepository;
@@ -51,7 +56,7 @@ public class DataServiceLocator implements RepositoryLocator {
 
   private PhotoDataSource photoDataSource() {
     if (photoDataSource == null) {
-      photoDataSource = new FakePhotoDataSource();
+      photoDataSource = new FirebasePhotoDataSource();
     }
     return photoDataSource;
   }
@@ -65,7 +70,7 @@ public class DataServiceLocator implements RepositoryLocator {
 
   private UserDataSource userDataSource() {
     if (userDataSource == null) {
-      userDataSource = new FakeUserDataSource();
+      userDataSource = new FirebaseUserDataSource();
     }
     return userDataSource;
   }
@@ -79,7 +84,7 @@ public class DataServiceLocator implements RepositoryLocator {
 
   private LikeDataSource likeDataSource() {
     if (likeDataSource == null) {
-      likeDataSource = new FakeLikeDataSource();
+      likeDataSource = new FirebaseLikeDataSource();
     }
     return likeDataSource;
   }
@@ -93,7 +98,7 @@ public class DataServiceLocator implements RepositoryLocator {
 
   private CommentDataSource commentDataSource() {
     if (commentDataSource == null) {
-      commentDataSource = new FakeCommentDataSource();
+      commentDataSource = new FirebaseCommentDataSource();
     }
     return commentDataSource;
   }
@@ -107,7 +112,7 @@ public class DataServiceLocator implements RepositoryLocator {
 
   private LoggedUserDataSource loggedUserDataSource() {
     if (loggedUserDataSource == null) {
-      loggedUserDataSource = new FakeLoggedUserDataSource();
+      loggedUserDataSource = new FirebaseAuthenticatedUserDataSource();
     }
     return loggedUserDataSource;
   }

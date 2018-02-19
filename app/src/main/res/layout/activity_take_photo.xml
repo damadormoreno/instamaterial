@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
   <com.softonic.instamaterial.ui.view.RevealBackgroundView
       android:id="@+id/vRevealBackground"
@@ -43,12 +43,18 @@
         android:layout_height="match_parent"
         >
 
-      <com.commonsware.cwac.camera.CameraView
+<!--      <com.commonsware.cwac.camera.CameraView
           android:id="@+id/cameraView"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
           android:layout_gravity="center_vertical"
-          />
+          />-->
+        <com.otaliastudios.cameraview.CameraView
+            android:id="@+id/cameraView"
+            android:keepScreenOn="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"/>
 
       <ImageButton
           android:id="@+id/ivTakenPhoto"

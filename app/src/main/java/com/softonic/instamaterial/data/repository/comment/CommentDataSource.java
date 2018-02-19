@@ -9,4 +9,8 @@ public interface CommentDataSource {
   ObservableTask<List<Comment>> getComments(String photoId);
 
   ObservableTask<Comment> publishComment(UnpublishedComment unpublishedComment);
+
+    ObservableTask<Comment> addCommentNotifier(String photoId);
+
+  ObservableTask<Boolean> removeCommentNotifier(String photoId);
 }

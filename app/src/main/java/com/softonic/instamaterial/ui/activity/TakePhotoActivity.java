@@ -10,9 +10,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.RequiresApi;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
@@ -22,20 +26,33 @@ import android.widget.Button;
 import android.widget.ImageView;
 import butterknife.BindView;
 import butterknife.OnClick;
-import com.commonsware.cwac.camera.CameraHost;
+/*import com.commonsware.cwac.camera.CameraHost;
 import com.commonsware.cwac.camera.CameraHostProvider;
 import com.commonsware.cwac.camera.CameraView;
 import com.commonsware.cwac.camera.PictureTransaction;
-import com.commonsware.cwac.camera.SimpleCameraHost;
+import com.commonsware.cwac.camera.SimpleCameraHost;*/
+import com.otaliastudios.cameraview.CameraListener;
+import com.otaliastudios.cameraview.CameraUtils;
+import com.otaliastudios.cameraview.CameraView;
 import com.softonic.instamaterial.R;
 import com.softonic.instamaterial.ui.activity.publish.PublishActivity;
 import com.softonic.instamaterial.ui.utils.Utils;
 import com.softonic.instamaterial.ui.view.RevealBackgroundView;
+
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 public class TakePhotoActivity extends BaseActivity
-    implements RevealBackgroundView.OnStateChangeListener,
-    CameraHostProvider {
+    implements RevealBackgroundView.OnStateChangeListener
+        //,CameraHostProvider
+{
   private static final String ARG_REVEAL_START_LOCATION = "reveal_start_location";
 
   private static final Interpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
@@ -57,7 +74,7 @@ public class TakePhotoActivity extends BaseActivity
   CameraView cameraView;
   @BindView(R.id.btnTakePhoto)
   Button btnTakePhoto;
-
+  FileOutputStream fos;
   public static void startCameraFromLocation(int[] startingLocation, Activity startingActivity) {
     Intent intent = new Intent(startingActivity, TakePhotoActivity.class);
     intent.putExtra(ARG_REVEAL_START_LOCATION, startingLocation);
@@ -70,7 +87,60 @@ public class TakePhotoActivity extends BaseActivity
     setContentView(R.layout.activity_take_photo);
     updateStatusBarColor();
     setupRevealBackground(savedInstanceState);
+
+    cameraView.addCameraListener(new CameraListener() {
+      @Override
+      public void onPictureTaken(byte[] picture) {
+        // Create a bitmap or a file...
+        // CameraUtils will read EXIF orientation for you, in a worker thread.
+        CameraUtils.decodeBitmap(picture, new CameraUtils.BitmapCallback() {
+          @Override
+          public void onBitmapReady(Bitmap bitmap) {
+            showTakenPicture(bitmap);
+
+            //create a file to write bitmap data
+
+            publishTakenPicture(saveImageToExternalStorage(bitmap));
+          }
+        });
+      }
+    });
   }
+
+  private File saveImageToExternalStorage(Bitmap finalBitmap) {
+    String root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+    File myDir = new File(root + "/saved_images_1");
+    myDir.mkdirs();
+    Random generator = new Random();
+    int n = 10000;
+    n = generator.nextInt(n);
+    String fname = "Image-" + n + ".jpg";
+    File file = new File(myDir, fname);
+    if (file.exists())
+      file.delete();
+    try {
+      FileOutputStream out = new FileOutputStream(file);
+      finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+      out.flush();
+      out.close();
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+    }
+
+
+    // Tell the media scanner about the new file so that it is
+    // immediately available to the user.
+    MediaScannerConnection.scanFile(this, new String[]{file.toString()}, null,
+            new MediaScannerConnection.OnScanCompletedListener() {
+              public void onScanCompleted(String path, Uri uri) {
+                Log.i("ExternalStorage", "Scanned " + path + ":");
+                Log.i("ExternalStorage", "-> uri=" + uri);
+              }
+            });
+    return file;
+  }
+
 
   @TargetApi(Build.VERSION_CODES.LOLLIPOP)
   private void updateStatusBarColor() {
@@ -101,20 +171,21 @@ public class TakePhotoActivity extends BaseActivity
   @Override
   protected void onResume() {
     super.onResume();
-    cameraView.onResume();
+    cameraView.start();
     btnTakePhoto.setEnabled(true);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    cameraView.onPause();
+    cameraView.stop();
   }
 
   @OnClick(R.id.btnTakePhoto)
   public void onTakePhotoClick() {
     btnTakePhoto.setEnabled(false);
-    cameraView.takePicture(true, true);
+    //cameraView.takePicture(true, true);
+    cameraView.captureSnapshot();
     animateShutter();
   }
 
@@ -166,12 +237,12 @@ public class TakePhotoActivity extends BaseActivity
         .start();
   }
 
-  @Override
+ /* @Override
   public CameraHost getCameraHost() {
     return new MyCameraHost(this);
-  }
+  }*/
 
-  class MyCameraHost extends SimpleCameraHost {
+/*  class MyCameraHost extends SimpleCameraHost {
 
     private Camera.Size previewSize;
 
@@ -215,8 +286,7 @@ public class TakePhotoActivity extends BaseActivity
     @Override protected String getPhotoFilename() {
       return super.getPhotoFilename();
     }
-  }
-
+  }*/
   private void showTakenPicture(Bitmap bitmap) {
     ivTakenPhoto.setImageBitmap(bitmap);
   }

@@ -13,4 +13,8 @@ public interface PhotoRepository {
   ObservableTask<Photo> publishPhoto(UnpublishedPhoto unpublishedPhoto);
 
   ObservableTask<String> uploadPhoto(String photoUri);
+
+  ObservableTask<Photo> addPhotoNotifier();
+
+  ObservableTask<Boolean> removePhotoNotifier();
 }

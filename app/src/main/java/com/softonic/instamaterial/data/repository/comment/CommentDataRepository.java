@@ -20,4 +20,14 @@ public class CommentDataRepository implements CommentRepository {
   @Override public ObservableTask<Comment> publishComment(UnpublishedComment unpublishedComment) {
     return commentDataSource.publishComment(unpublishedComment);
   }
+
+  @Override
+  public ObservableTask<Comment> addCommentNotifier(String photoId) {
+    return commentDataSource.addCommentNotifier(photoId);
+  }
+
+  @Override
+  public ObservableTask<Boolean> removeCommentNotifier(String photoId) {
+    return commentDataSource.removeCommentNotifier(photoId);
+  }
 }

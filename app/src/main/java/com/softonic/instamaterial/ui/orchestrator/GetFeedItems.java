@@ -28,7 +28,7 @@ public class GetFeedItems extends UseCase<String, List<FeedItem>> {
         List<Photo> photos = getPhotos.createObservableTask(null).getResult();
 
         for (Photo photo : photos) {
-          FeedItem feedItem = getFeedItem.createObservableTask(photo.getId()).getResult();
+          FeedItem feedItem = getFeedItem.createObservableTask(photo).getResult();
           if (feedItem != null) {
             feedItems.add(feedItem);
           }

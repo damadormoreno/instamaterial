@@ -74,6 +74,16 @@ public class FakePhotoDataSource implements PhotoDataSource {
     };
   }
 
+  @Override
+  public ObservableTask<Photo> addPhotoNotifier() {
+    return null;
+  }
+
+  @Override
+  public ObservableTask<Boolean> removePhotoNotifier() {
+    return null;
+  }
+
   private Photo createPhoto(
       String id, String userId, long timestamp, String sourceUrl, String description) {
     return Photo.Builder()

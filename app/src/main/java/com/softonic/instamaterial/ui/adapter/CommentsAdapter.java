@@ -85,7 +85,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
   public boolean add(CommentItem commentItem) {
     boolean result = false;
-    if (getItemPosition(commentItem.getCommentId()) != -1) {
+    if (getItemPosition(commentItem.getCommentId()) == -1) {
       commentItems.add(commentItem);
       notifyItemInserted(commentItems.size());
       result = true;

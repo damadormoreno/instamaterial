@@ -1,6 +1,8 @@
 package com.softonic.instamaterial.data.repository.like;
 
 import android.support.annotation.NonNull;
+import android.util.Pair;
+
 import com.softonic.instamaterial.domain.common.ObservableTask;
 import com.softonic.instamaterial.domain.common.Subscriber;
 import com.softonic.instamaterial.domain.model.Like;
@@ -78,5 +80,15 @@ public class FakeLikeDataSource implements LikeDataSource {
         result.onSuccess(added);
       }
     };
+  }
+
+  @Override
+  public ObservableTask<Pair<Like, Boolean>> addLikeNotifier(String photoId) {
+    return null;
+  }
+
+  @Override
+  public ObservableTask<Boolean> removeLikeNotifier(String photoID) {
+    return null;
   }
 }

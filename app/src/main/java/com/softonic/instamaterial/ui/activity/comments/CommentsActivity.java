@@ -111,6 +111,7 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
   }
 
   @Override public void onFinishedRequestingComments() {
+    commentsPresenter.requestAddCommentNotifier(photoId);
   }
 
   @Override public void updateComments(List<CommentItem> commentItems) {
