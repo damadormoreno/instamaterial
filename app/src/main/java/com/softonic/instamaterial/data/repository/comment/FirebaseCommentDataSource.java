@@ -125,7 +125,12 @@ public class FirebaseCommentDataSource implements CommentDataSource {
             @Override
             public void run(Subscriber<Boolean> result) {
                 if (listenerMap.containsKey(photoId)){
-
+                    DatabaseReference commentsRef = FirebaseDatabase.getInstance()
+                            .getReference("Photos")
+                            .child(photoId)
+                            .child("Comments");
+                    commentsRef.removeEventListener(listenerMap.get(photoId));
+                    listenerMap.remove(photoId);
                 }
             }
         };

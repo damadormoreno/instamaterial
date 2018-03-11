@@ -1,9 +1,11 @@
 package com.softonic.instamaterial.ui.activity.comments;
 
+import com.softonic.instamaterial.data.repository.commons.EmptyUseCaseCallBack;
 import com.softonic.instamaterial.domain.common.UseCaseCallback;
 import com.softonic.instamaterial.domain.interactors.AddCommentNotifier;
 import com.softonic.instamaterial.domain.interactors.GetAuthenticatedUserUid;
 import com.softonic.instamaterial.domain.interactors.PublishComment;
+import com.softonic.instamaterial.domain.interactors.RemoveCommentNotifier;
 import com.softonic.instamaterial.domain.model.Comment;
 import com.softonic.instamaterial.domain.model.UnpublishedComment;
 import com.softonic.instamaterial.ui.model.CommentItem;
@@ -18,16 +20,19 @@ public class CommentsPresenter extends Presenter<CommentsPresenter.View> {
   private final PublishComment publishComment;
   private final GetCommentItem getCommentItem;
   private final AddCommentNotifier addCommentNotifier;
+  private final RemoveCommentNotifier removeCommentNotifier;
 
   private String currentUserUid;
 
   public CommentsPresenter(GetCommentItems getCommentItems, GetAuthenticatedUserUid getAuthenticatedUserUid,
-                           PublishComment publishComment, GetCommentItem getCommentItem, AddCommentNotifier addCommentNotifier) {
+                           PublishComment publishComment, GetCommentItem getCommentItem, AddCommentNotifier addCommentNotifier,
+                           RemoveCommentNotifier removeCommentNotifier) {
     this.getCommentItems = getCommentItems;
     this.getAuthenticatedUserUid = getAuthenticatedUserUid;
     this.publishComment = publishComment;
     this.getCommentItem = getCommentItem;
     this.addCommentNotifier = addCommentNotifier;
+    this.removeCommentNotifier = removeCommentNotifier;
   }
 
   @Override public void attach(View view) {
@@ -56,6 +61,10 @@ public class CommentsPresenter extends Presenter<CommentsPresenter.View> {
 
   public void  requestAddCommentNotifier(String photoId){
     addCommentNotifier.execute(photoId, new AddCommentNotifierCallBack());
+  }
+
+  public void requestRemoveCommentNotifier(String photoId){
+    removeCommentNotifier.execute(photoId, new EmptyUseCaseCallBack<Boolean>());
   }
 
   private class GetCommentItemsCallback implements UseCaseCallback<List<CommentItem>> {

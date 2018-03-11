@@ -32,4 +32,6 @@ public interface InteractorLocator {
   RemoveLikeNotifier removeLikeNotifier();
 
   AddCommentNotifier addCommentNotifier();
+
+  RemoveCommentNotifier removeCommentNotifier();
 }

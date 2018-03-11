@@ -85,6 +85,12 @@ public class CommentsActivity extends BaseActivity implements SendCommentButton.
     btnSendComment.setOnSendClickListener(this);
   }
 
+  @Override
+  protected void onDestroy() {
+    commentsPresenter.requestRemoveCommentNotifier(photoId);
+    super.onDestroy();
+  }
+
   private void initPresenter() {
     CommentsPresenterLocator presenterLocator =
         AppServiceLocator.getInstance().plusActivityServiceLocator();

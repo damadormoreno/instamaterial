@@ -17,6 +17,7 @@ import com.softonic.instamaterial.domain.interactors.InteractorLocator;
 import com.softonic.instamaterial.domain.interactors.LikePhoto;
 import com.softonic.instamaterial.domain.interactors.PublishComment;
 import com.softonic.instamaterial.domain.interactors.PublishPhoto;
+import com.softonic.instamaterial.domain.interactors.RemoveCommentNotifier;
 import com.softonic.instamaterial.domain.interactors.RemoveLikeNotifier;
 import com.softonic.instamaterial.domain.interactors.RemovePhotoNotifier;
 import com.softonic.instamaterial.domain.interactors.UpdateUser;
@@ -71,6 +72,7 @@ public class ActivityServiceLocator
   private AddLikeNotifier addLikeNotifier;
   private RemoveLikeNotifier removeLikeNotifier;
   private AddCommentNotifier addCommentNotifier;
+  private RemoveCommentNotifier removeCommentNotifier;
 
   @Override public MainPresenter mainPresenter(FragmentActivity activity) {
     if (mainPresenter == null) {
@@ -92,7 +94,7 @@ public class ActivityServiceLocator
     if (commentsPresenter == null) {
       commentsPresenter =
           new CommentsPresenter(getCommentItems(), getLoggedUser(), publishComment(),
-              getCommentItem(), addCommentNotifier());
+              getCommentItem(), addCommentNotifier(), removeCommentNotifier());
     }
     return commentsPresenter;
   }
@@ -236,6 +238,15 @@ public class ActivityServiceLocator
     }
 
     return addCommentNotifier;
+  }
+
+  @Override
+  public RemoveCommentNotifier removeCommentNotifier() {
+    if (removeCommentNotifier == null){
+      CommentRepository commentRepository = DataServiceLocator.getInstance().commentRepository();
+      removeCommentNotifier = new RemoveCommentNotifier(useCaseExecutor(), commentRepository);
+    }
+    return removeCommentNotifier;
   }
 
   @Override public GetFeedItem getFeedItem() {
